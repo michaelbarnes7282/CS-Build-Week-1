@@ -1,7 +1,5 @@
 import React, { useState, useCallback, useRef } from "react";
-import { pulsar } from "../presets/pulsar.js";
-import { spaceship } from "../presets/spaceship.js";
-import { rain } from "../presets/rain.js";
+import { pulsar, spaceship, rain } from "./presets.js";
 import produce from "immer";
 
 const numRows = 25;
@@ -20,11 +18,11 @@ const presetContainer = {
 };
 
 const colors = {
-    cyan: 'cyan',
-    red: 'red',
-    orange: 'orange',
-    seaGreen: 'seaGreen'
-}
+  cyan: "cyan",
+  red: "red",
+  orange: "orange",
+  lime: "lime",
+};
 
 const operations = [
   [0, 1],
@@ -53,8 +51,9 @@ const Grid = () => {
   const [running, setRunning] = useState(false);
   const [speed, setSpeed] = useState("slow");
   const [gen, setGen] = useState(0);
-  const [color, setColor] = useState('cyan')
+  const [color, setColor] = useState("cyan");
 
+  // refrences to make state setting easier
   const runningRef = useRef();
   runningRef.current = running;
 
@@ -67,15 +66,15 @@ const Grid = () => {
   const colorRef = useRef();
   colorRef.current = color;
 
-  const handleSpeed = e => {
+  const handleSpeed = (e) => {
     setSpeed(e.target.value);
   };
 
-  const handleColor = e => {
+  const handleColor = (e) => {
     setColor(e.target.value);
-  }
+  };
 
-  const handleChange = (e) => {
+  const handlePreset = (e) => {
     let presetName = e.target.value;
     setGen(0);
     setRunning(false);
@@ -94,11 +93,14 @@ const Grid = () => {
     setGen((generation) => {
       return (generation = generation + 1);
     });
+    // uses current grid: g to make a gridCopy, then after all calculations are made
+    // makes gridCopy the current grid.
     setGrid((g) => {
       return produce(g, (gridCopy) => {
         for (let i = 0; i < numRows; i++) {
           for (let k = 0; k < numCols; k++) {
             let neighbors = 0;
+            // uses operations above to calculate the 8 surrounding neighor nodes
             operations.forEach(([x, y]) => {
               const newI = i + x;
               const newK = k + y;
@@ -106,6 +108,7 @@ const Grid = () => {
                 neighbors += g[newI][newK];
               }
             });
+            // calculates whether a node should become alive, dead, or be left alone.
             if (neighbors < 2 || neighbors > 3) {
               gridCopy[i][k] = 0;
             } else if (g[i][k] === 0 && neighbors === 3) {
@@ -120,10 +123,6 @@ const Grid = () => {
 
   return (
     <>
-      <link
-        href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&display=swap"
-        rel="stylesheet"
-      ></link>
       {/* <button
             onClick={() => {
                 console.log(grid)
@@ -150,7 +149,7 @@ const Grid = () => {
       >
         Presets
       </label>
-      <select className="presets" id="presets" onChange={handleChange}>
+      <select className="presets" id="presets" onChange={handlePreset}>
         <option value="None">Empty</option>
         <option value="prePulsar">Pulsar</option>
         <option value="preSpace">Space Ship</option>
@@ -168,7 +167,7 @@ const Grid = () => {
         <option value="cyan">Cyan</option>
         <option value="red">Red</option>
         <option value="orange">Orange</option>
-        <option value="seaGreen">Sea Green</option>
+        <option value="lime">Lime</option>
       </select>
       <br />
       <p>Generation: {gen}</p>
@@ -185,22 +184,27 @@ const Grid = () => {
             <div
               key={`${i}-${k}`}
               onClick={() => {
-                const newGrid = produce(grid, (gridCopy) => {
-                  gridCopy[i][k] = grid[i][k] ? 0 : 1;
-                });
-                setGrid(newGrid);
+                if (!running) {
+                  const newGrid = produce(grid, (gridCopy) => {
+                    gridCopy[i][k] = grid[i][k] ? 0 : 1;
+                  });
+                  setGrid(newGrid);
+                }
               }}
               style={{
                 width: 20,
                 height: 20,
-                backgroundColor: grid[i][k] ? colors[colorRef.current] : undefined,
-                border: "solid 1px black",
+                backgroundColor: grid[i][k]
+                  ? colors[colorRef.current]
+                  : undefined,
+                border: "solid 1px white",
               }}
             />
           ))
         )}
       </div>
       <div
+        classname='buttons'
         style={{
           paddingBottom: "2px",
         }}
@@ -252,7 +256,6 @@ const Grid = () => {
           next stage
         </button>
       </div>
-
     </>
   );
 };
