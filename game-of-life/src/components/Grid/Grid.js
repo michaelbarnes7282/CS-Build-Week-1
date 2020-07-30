@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useRef } from "react";
-import { pulsar, spaceship, rain } from "./presets.js";
+import { pulsar, spaceship, rain, circleOfFire } from "./presets.js";
 import produce from "immer";
 
 const numRows = 25;
@@ -15,6 +15,7 @@ const presetContainer = {
   prePulsar: pulsar,
   preSpace: spaceship,
   preRain: rain,
+  preCircle: circleOfFire,
 };
 
 const colors = {
@@ -102,8 +103,8 @@ const Grid = () => {
             let neighbors = 0;
             // uses operations above to calculate the 8 surrounding neighor nodes
             operations.forEach(([x, y]) => {
-              const newI = i + x;
-              const newK = k + y;
+              const newI = (i + x + numRows) % numRows;
+              const newK = (k + y + numCols) % numCols;
               if (newI >= 0 && newI < numRows && newK >= 0 && newK < numCols) {
                 neighbors += g[newI][newK];
               }
@@ -123,11 +124,11 @@ const Grid = () => {
 
   return (
     <>
-      {/* <button
+      <button
             onClick={() => {
                 console.log(grid)
             }}>
-              Print</button> */}
+              Print</button>
       <label
         htmlFor="speeds"
         style={{
@@ -154,6 +155,7 @@ const Grid = () => {
         <option value="prePulsar">Pulsar</option>
         <option value="preSpace">Space Ship</option>
         <option value="preRain">Rain</option>
+        <option value="preCircle">Circle of Fire</option>
       </select>
       <label
         htmlFor="color"
