@@ -124,11 +124,11 @@ const Grid = () => {
 
   return (
     <>
-      <button
+      {/* <button
             onClick={() => {
                 console.log(grid)
             }}>
-              Print</button>
+              Print</button> */}
       <label
         htmlFor="speeds"
         style={{
